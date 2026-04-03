@@ -19,7 +19,7 @@ public class TaskResponse {
     private String description;
     private Status status;
     private Priority priority;
-    private String assignedToEmail; // Easier for the frontend than just an ID
+    private String assignedToEmail;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
