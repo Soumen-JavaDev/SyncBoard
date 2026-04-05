@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -35,7 +36,7 @@ public class TaskController {
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable Long id,
-            @RequestBody TaskRequest request) {
+            @RequestBody TaskRequest request) throws AccessDeniedException {
         TaskResponse updated = taskService.updateTask(id, request);
         return ResponseEntity.ok(updated);
     }

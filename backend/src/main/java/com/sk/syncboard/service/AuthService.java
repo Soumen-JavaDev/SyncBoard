@@ -1,37 +1,33 @@
 package com.sk.syncboard.service;
 
+import com.sk.syncboard.dto.*;
+import com.sk.syncboard.model.*;
 import com.sk.syncboard.repository.OrganizationRepository;
+import com.sk.syncboard.repository.UserRepository;
 import com.sk.syncboard.util.JWTUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.sk.syncboard.dto.*;
-import com.sk.syncboard.model.*;
-import com.sk.syncboard.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTUtil jwtUtil;
 
-    @Autowired
-    private OrganizationRepository organizationRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JWTUtil jwtUtil;
-
+    @Transactional // Ensures both Org and User are saved or neither is
     public ResponseEntity<?> register(RegisterRequest registerRequest) {
 
-        // Check if email already exists or not
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
 
-        // Find or create organization
+        // 1. Find or create organization
         Organization org = organizationRepository
                 .findByName(registerRequest.getOrganizationName())
                 .orElseGet(() -> {
@@ -41,7 +37,7 @@ public class AuthService {
                     return organizationRepository.save(newOrg);
                 });
 
-        // Create user
+        // 2. Create user
         User user = User.builder()
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
@@ -51,7 +47,9 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("User and organization created successfully");
+        // 3. Generate token so the user is logged in immediately after signing up
+        String token = jwtUtil.generateToken(user);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     public ResponseEntity<AuthResponse> login(LoginRequest loginRequest) {
@@ -63,10 +61,7 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        // TODO: Generated Token for JWT
-
         String token = jwtUtil.generateToken(user);
-
         return ResponseEntity.ok(new AuthResponse(token));
     }
 }

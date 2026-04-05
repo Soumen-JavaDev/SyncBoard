@@ -16,8 +16,8 @@ public class JWTUtil {
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
 
-    private final String SECRET = "dlfe034-flsdfl3-flvldkafjiosdf-jflkfldseireoif";
 
+    private final String SECRET = "your-very-secure-32-character-long-secret-key-here!!";
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     public String generateToken(User user) {

@@ -90,10 +90,14 @@ public class TaskService {
     }
 
     // 4. Delete task
-    public void deleteTask(Long id) {
-        if (!taskRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete. Task not found with id: " + id);
+    public void deleteTask(Long id) throws AccessDeniedException {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        User currentUser = getLoggedInUser();
+        if (!task.getOrganization().getId().equals(currentUser.getOrganization().getId())) {
+            throw new AccessDeniedException("You do not have permission to delete this task");
         }
-        taskRepository.deleteById(id);
+        taskRepository.delete(task);
     }
 }
