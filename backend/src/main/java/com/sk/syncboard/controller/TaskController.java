@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
-@RequiredArgsConstructor // This injects your Service automatically
+@RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
@@ -43,7 +43,7 @@ public class TaskController {
 
     // 4. Delete a task
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) throws AccessDeniedException {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build(); // Returns a 204 No Content status
     }

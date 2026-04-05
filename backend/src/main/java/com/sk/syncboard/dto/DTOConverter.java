@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DTOConverter {
-
     public TaskResponse taskToResponse(Task task) {
         return TaskResponse.builder()
                 .id(task.getId())
@@ -15,7 +14,7 @@ public class DTOConverter {
                 .description(task.getDescription())
                 .status(task.getStatus())
                 .priority(task.getPriority())
-                .assignedToEmail(task.getAssignedTo().getEmail())
+                .assignedToEmail(task.getAssignedTo() != null ? task.getAssignedTo().getEmail() : "Unassigned")
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
                 .build();
