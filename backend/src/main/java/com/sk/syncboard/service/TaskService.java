@@ -7,6 +7,7 @@ import com.sk.syncboard.model.Task;
 import com.sk.syncboard.model.User;
 import com.sk.syncboard.repository.TaskRepository;
 import com.sk.syncboard.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,32 +28,67 @@ public class TaskService {
         this.dtoConverter = dtoConverter;
     }
 
-    // Get all tasks filter by organization
-    public List<TaskResponse> getAllTasksByOrganization() {
-        return null;
+    // Helper to find the user currently logged in via JWT
+    private User getLoggedInUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Logged in user not found"));
     }
 
-    //  Create task
+    // 1. Get all tasks filtered by the user's organization
+    public List<TaskResponse> getAllTasksByOrganization() {
+        User user = getLoggedInUser();
+        Long orgId = user.getOrganization().getId();
+
+        return taskRepository.findAllByOrganizationId(orgId)
+                .stream()
+                .map(dtoConverter::taskToResponse)
+                .collect(Collectors.toList());
+    }
+
+    // 2. Create task and link it to the organization
     public TaskResponse createTask(TaskRequest request) {
+        User currentUser = getLoggedInUser();
 
-        User user = userRepository.findById(request.getAssignedToId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        // Find who the task is assigned to
+        User assignee = userRepository.findById(request.getAssignedToId())
+                .orElseThrow(() -> new RuntimeException("Assignee user not found"));
 
-        Task task = dtoConverter.requestToTask(request, user);
+        Task task = dtoConverter.requestToTask(request, assignee);
+
+        // CRITICAL: Set the organization from the logged-in user
+        task.setOrganization(currentUser.getOrganization());
 
         Task savedTask = taskRepository.save(task);
-
         return dtoConverter.taskToResponse(savedTask);
     }
 
-    //  Update task
+    // 3. Update task
     public TaskResponse updateTask(Long id, TaskRequest request) {
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
-     return null;
+        // Update fields
+        existingTask.setTitle(request.getTitle());
+        existingTask.setDescription(request.getDescription());
+        existingTask.setStatus(request.getStatus());
+        existingTask.setPriority(request.getPriority());
+
+        if (request.getAssignedToId() != null) {
+            User newAssignee = userRepository.findById(request.getAssignedToId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            existingTask.setAssignedTo(newAssignee);
+        }
+
+        Task updatedTask = taskRepository.save(existingTask);
+        return dtoConverter.taskToResponse(updatedTask);
     }
 
-    //  Delete task
+    // 4. Delete task
     public void deleteTask(Long id) {
-
+        if (!taskRepository.existsById(id)) {
+            throw new RuntimeException("Cannot delete. Task not found with id: " + id);
+        }
+        taskRepository.deleteById(id);
     }
 }
