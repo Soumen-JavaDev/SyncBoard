@@ -10,6 +10,7 @@ import com.sk.syncboard.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,10 +65,14 @@ public class TaskService {
     }
 
     // 3. Update task
-    public TaskResponse updateTask(Long id, TaskRequest request) {
+    public TaskResponse updateTask(Long id, TaskRequest request) throws AccessDeniedException {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
-
+        // add Security check
+        User currentUser = getLoggedInUser();
+        if (!existingTask.getOrganization().getId().equals(currentUser.getOrganization().getId())) {
+            throw new AccessDeniedException("not match the org id  ");
+        }
         // Update fields
         existingTask.setTitle(request.getTitle());
         existingTask.setDescription(request.getDescription());
