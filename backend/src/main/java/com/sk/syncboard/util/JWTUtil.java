@@ -27,4 +27,5 @@ public class JWTUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 }
