@@ -25,6 +25,15 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String first_name;
+
+    @Column(nullable = false)
+    private String last_name;
+
+    @Column(nullable = false ,length = 13)
+    private String phone;
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
@@ -39,6 +48,10 @@ public class User implements UserDetails {
     @JoinColumn(name = "org_id")
     private Organization organization;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -46,7 +59,9 @@ public class User implements UserDetails {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
+    public String getFullName() {
+        return first_name + " " + last_name;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));}
     @Override

@@ -42,6 +42,9 @@ public class AuthService {
 
         // 2. Create user
         User user = User.builder()
+                .first_name(registerRequest.getFirstName())
+                .last_name(registerRequest.getLastName())
+                .phone(registerRequest.getPhone())
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(Role.ADMIN)

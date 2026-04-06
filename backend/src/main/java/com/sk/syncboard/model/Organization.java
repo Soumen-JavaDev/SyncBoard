@@ -22,6 +22,15 @@ public class Organization {
     @Column(nullable = false, length = 100)
     private String name;
 
+    private String description;
+
+    private String email;
+    private String phone;
+
+    private String address;
+
+    private String website;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

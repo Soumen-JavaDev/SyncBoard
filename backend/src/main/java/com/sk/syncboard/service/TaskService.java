@@ -56,6 +56,7 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("Assignee user not found"));
 
         Task task = dtoConverter.requestToTask(request, assignee);
+        task.setCreatedBy(currentUser);
 
         // CRITICAL: Set the organization from the logged-in user
         task.setOrganization(currentUser.getOrganization());

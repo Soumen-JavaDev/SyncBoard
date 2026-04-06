@@ -14,9 +14,17 @@ public class DTOConverter {
                 .description(task.getDescription())
                 .status(task.getStatus())
                 .priority(task.getPriority())
-                .assignedToEmail(task.getAssignedTo() != null ? task.getAssignedTo().getEmail() : "Unassigned")
+                .assignedToName(
+                        task.getAssignedTo() != null
+                                ? task.getAssignedTo().getFirst_name()
+                                : null
+                )
+                .createdByName(
+                        task.getCreatedBy() != null
+                                ? task.getCreatedBy().getFirst_name()
+                                : null
+                )
                 .createdAt(task.getCreatedAt())
-                .updatedAt(task.getUpdatedAt())
                 .build();
     }
 

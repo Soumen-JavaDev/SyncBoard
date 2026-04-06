@@ -19,6 +19,9 @@ public class TaskResponse {
     private String description;
     private Status status;
     private Priority priority;
+
+    private String assignedToName;
+    private String createdByName;
     private String assignedToEmail;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
