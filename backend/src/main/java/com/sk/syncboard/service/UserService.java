@@ -6,7 +6,7 @@ import com.sk.syncboard.model.Role;
 import com.sk.syncboard.model.User;
 import com.sk.syncboard.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

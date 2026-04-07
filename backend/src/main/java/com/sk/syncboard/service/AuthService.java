@@ -36,6 +36,11 @@ public class AuthService {
                 .orElseGet(() -> {
                     Organization newOrg = Organization.builder()
                             .name(registerRequest.getOrganizationName())
+                            .email(registerRequest.getOrgEmail())
+                            .description(registerRequest.getOrgDescription())
+                            .phone(registerRequest.getOrgPhone())
+                            .address(registerRequest.getOrgPhone())
+                            .website(registerRequest.getOrgWebsite())
                             .build();
                     return organizationRepository.save(newOrg);
                 });
@@ -51,11 +56,11 @@ public class AuthService {
                 .organization(org)
                 .build();
 
-        userRepository.save(user);
+       User currUser= userRepository.save(user);
 
         // 3. Generate token for instant login
         String token = jwtUtil.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token,currUser.getRole().toString(),currUser.getEmail(),currUser.getFullName()));
     }
 
     public ResponseEntity<AuthResponse> login(LoginRequest request) {
@@ -72,6 +77,13 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user);
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(
+                new AuthResponse(
+                        token,
+                        user.getRole().name(),
+                        user.getEmail(),
+                        user.getFullName()
+                )
+        );
     }
 }
